@@ -18,6 +18,7 @@
 package cse250.pa1
 
 import cse250.objects.EmbeddedListNode
+import scala.util.control.Breaks._
 
 class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
   extends collection.mutable.Seq[A] {
