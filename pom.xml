@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+    <groupId>edu.buffalo.cse</groupId>
+    <artifactId>cse250</artifactId>
+    <modelVersion>4.0.0</modelVersion>
+    <url>http://maven.apache.org</url>
+    <version>0.0.1</version>
+    <dependencies>
+        <!-- Dependencies for Scalatest from http://www.scalatest.org/install -->
+        <dependency>
+            <groupId>org.scalactic</groupId>
+            <artifactId>scalactic_2.13</artifactId>
+            <version>3.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scalatest</groupId>
+            <artifactId>scalatest_2.13</artifactId>
+            <version>3.0.8</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
