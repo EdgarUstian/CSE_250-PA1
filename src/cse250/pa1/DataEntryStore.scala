@@ -29,17 +29,57 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
 
   /** Inserts element to tail of list. */
   def insert(elem: A): Unit = {
+    //Empty List
+    if(numStored == 0){
+      //Create First Element
+      numStored += 1
+      headIndex = 0
+      tailIndex = 0
+      dataArray.head.value = elem
+    }
     //Not-Full List
-    if(numStored <= capacity){
-      var index: Int = 0
-      while(dataArray(index).value != null && index < capacity){
-        index += 1
+    if(0 < numStored && numStored < capacity){
+      var indX: Int = 0
+      while(indX < capacity){
+        if(dataArray(indX).value == null){
+          numStored += 1
+          //Break out of loop using the iterator
+          indX = capacity
+          dataArray(indX).value = elem
+          //Append element at the end of array
+          dataArray(indX).prev = tailIndex
+          //Make sure the other end is pointing at the new tail
+          dataArray(tailIndex).next = indX
+        }
+        else{
+          indX += 1
+        }
       }
-      
     }
     //Full List
     else{
+      //Replaces the value of the head
+      dataArray(headIndex).value = elem
+      //Link the new tail to the previous tail
+      dataArray(headIndex).prev = tailIndex
+      //New Tail
+      dataArray(headIndex).next = -1
+      //Old head becomes New tail
+      tailIndex = headIndex
+      //Next item is the head
+      headIndex = dataArray(headIndex).next
+      //Sets previous as head
+      dataArray(headIndex).prev = -1
     }
+    println("====================")
+    println("numStored : " + numStored)
+    println("Capacity : " + capacity)
+    println("   Head : " + headIndex)
+    println("   TAil : " + tailIndex)
+    if (numStored == capacity) {
+      println("fullllllll")
+    }
+    println("====================")
   }
 
   /** Removes all copies of the given element. */
