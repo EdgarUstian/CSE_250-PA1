@@ -9,11 +9,11 @@
  * http://creativecommons.org/licenses/by-nc-sa/4.0/.
  *
  * Submission author
- * UBIT:
- * Person#:
+ * UBIT: edgarust
+ * Person#: 50230866
  *
  * Collaborators (include UBIT name of each, comma separated):
- * UBIT:
+ * UBIT: edgarust
  */
 package cse250.pa1
 
@@ -39,56 +39,104 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
     }
     //Not-Full List
     else if(0 < numStored && numStored < capacity){
-      var indX: Int = 0
-      while(indX < capacity){
-        if(dataArray(indX).value == null){
-          numStored += 1
-          //Break out of loop using the iterator
-          indX = capacity
-          dataArray(indX).value = elem
-          //Append element at the end of array
-          dataArray(indX).prev = tailIndex
-          //Make sure the other end is pointing at the new tail
-          dataArray(tailIndex).next = indX
-        }
-        else{
+      var editNode: EmbeddedListNode[A] = null
+      var indX = 0
+      //Find first empty node
+      breakable(
+        for(node <- dataArray){
+          if(node.value == null){
+            editNode = node
+            break()
+          }
           indX += 1
         }
-      }
+      )
+      numStored += 1
+      //Set done to elem
+      editNode.value = elem
+      editNode.prev = tailIndex
+      dataArray(tailIndex).next = indX
+      tailIndex = indX
     }
     //Full List
-    else{
-      //Replaces the value of the head
+    else if(numStored == capacity){
+      //Replace the value
       dataArray(headIndex).value = elem
-      //Link the new tail to the previous tail
+      //Double-Link
+//      println("head.prev : " + dataArray(headIndex).prev + " --> " + tailIndex)
       dataArray(headIndex).prev = tailIndex
-      //New Tail
-      dataArray(headIndex).next = -1
-      //Old head becomes New tail
+//      println("tail.next : " + dataArray(tailIndex).next + " --> " + headIndex)
+      dataArray(tailIndex).next = headIndex
+      //Next node in list becomes head
+//      println("next.prev : " + dataArray(dataArray(headIndex).next).prev + " --> " + "-1")
+      dataArray(dataArray(headIndex).next).prev = -1
+      //Head becomes new Tail
+//      println("     tail : " + tailIndex + " --> " + headIndex)
       tailIndex = headIndex
-      //Next item is the head
-      val tempIndX: Int = headIndex
+      //Next elem is the new head
+//      println("     head : " + headIndex + " --> " + dataArray(headIndex).next)
       headIndex = dataArray(headIndex).next
-      //Sets previous as head
-      dataArray(tempIndX).prev = -1
     }
+    /*
+    println("============================================")
+    println("numStored : " + numStored)
+    println(" Capacity : " + capacity)
+    println("     Head : " + headIndex)
+    println("     Tail : " + tailIndex)
+    if (numStored == capacity) {
+      println("FULL")
+    }
+    for(indX <- dataArray.indices){
+      val node = dataArray(indX)
+      print("indX : " + indX + ", ")
+      print("prev : " + node.prev + ", ")
+      print("next : " + node.next + ", ")
+      println("value : " + node.value)
+    }
+    println("============================================")
+    */
   }
 
   /** Removes all copies of the given element. */
   def remove(elem: A): Boolean = {
     var exists: Boolean = false
-    for(nodes <- dataArray){
-      if(nodes.value == elem){
+    //Iterate until relative tail
+    for(node <- dataArray){
+      print(node.prev + ", " + node.next)
+      //If exists
+      if(node.value == elem){
         exists = true
-        if(nodes.prev != -1){
-          dataArray(nodes.prev).next = nodes.next
+        node.value = null
+        numStored -= 1
+        if(numStored > 0){
+          //If at relative head
+          if(node.prev == -1 && node.next != -1){
+            //Update headIndex
+            headIndex = node.next
+            dataArray(node.next).prev = -1
+            node.next = -1
+          }
+          //If at relative tail
+          if(node.prev != -1 && node.next == -1){
+            //Update tailIndex
+            tailIndex = node.prev
+            dataArray(node.prev).next = -1
+            node.prev = -1
+          }
+          //Only 1 node
+          if(node.prev == -1 && node.next == -1){
+            node.prev = -1
+            node.next = -1
+            headIndex = -1
+            tailIndex = -1
+          }
+          if(node.prev != -1 && node.next != -1){
+            dataArray(node.prev).next = node.next
+            dataArray(node.next).prev = node.prev
+            node.prev = -1
+            node.next = -1
+          }
         }
-        if(nodes.next != -1){
-          dataArray(nodes.next).prev = nodes.prev
-        }
-        nodes.value = null
-        nodes.prev = -1
-        nodes.next = -1
       }
     }
     exists

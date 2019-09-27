@@ -133,7 +133,7 @@ class DataEntryStoreTests extends FlatSpec with BeforeAndAfter {
       }
     }
   }
-
+print("=========================================================")
   it should "remove duplicate entries" in {
     val entries = loadEntries(smallFilename, maxCapacity+1)
     for (i <- 0 until maxCapacity) {
@@ -182,5 +182,121 @@ class DataEntryStoreTests extends FlatSpec with BeforeAndAfter {
     assert(dataStore.remove(entries(0)))
     assert(dataStore.length == 0)
     assert(!dataStore.iterator.hasNext)
+  }
+  it should "work" in {<!-- -->
+    val testSize = 10
+    var dataArray = new DataEntryStore[String](testSize)
+    for(i<- 0 until testSize*2) dataArray.insert(i.toString)
+    var iterator = dataArray.iterator
+    for(i<- 0 until testSize) assert(iterator.next == (i+testSize).toString)
+    for(i<- 0 until testSize) {<!-- -->
+      assert(dataArray.remove((i+testSize).toString))
+      assert(!dataArray.remove(i.toString))
+    }
+    for(i<- 0 until testSize) dataArray.insert(i.toString)
+    for(i<- 0 until testSize) assert(dataArray(i) == i.toString)
+    iterator = dataArray.iterator
+    for(i<- 0 until testSize) assert(iterator.next == i.toString)
+    for(i<- 0 until testSize/2) {<!-- -->
+      assert(dataArray.remove(i.toString))
+      assert(!dataArray.remove(i.toString))
+    }
+    iterator = dataArray.iterator
+    for(i<- 0 until testSize/2) assert(iterator.next == (testSize/2+ i).toString)
+    for(i<- 0 until testSize/2) assert(dataArray(i) == (testSize/2+ i).toString)
+  }
+  it should "work in a removal case" in {
+    val testSize = 3
+    var iter: Iterator[String] = null
+    var stringDataStore = new DataEntryStore[String](testSize)
+    for (rmVal <- 0 until testSize) {
+      for (i <- 0 until testSize) {
+        stringDataStore.insert(i.toString)
+      }
+      assert(stringDataStore.length == testSize)
+
+      assert(stringDataStore.remove(rmVal.toString))
+
+      for (i <- 0 until testSize if i != rmVal) {
+        if (i < rmVal) assert(stringDataStore(i) == i.toString)
+        else assert(stringDataStore(i-1) == i.toString)
+      }
+    }
+
+    for (rmVal <- 0 until testSize) {
+      for (_ <- 0 until testSize) {
+        stringDataStore.insert(rmVal.toString)
+      }
+      assert(stringDataStore.length == testSize)
+
+      assert(stringDataStore.remove(rmVal.toString))
+      assert(!stringDataStore.iterator.hasNext)
+      assert(stringDataStore.length == 0)
+    }
+  }
+
+  it should "maintain proper functionality after removals" in {
+    val testSize = 100
+    var iter: Iterator[String] = null
+    var stringDataStore = new DataEntryStore[String](testSize)
+
+    for (i <- 0 until testSize) {
+      stringDataStore.insert(i.toString)
+      assert(stringDataStore.length == i + 1)
+    }
+
+    iter = stringDataStore.iterator
+    for (i <- 0 until testSize) {
+      assert(iter.hasNext)
+      assert(iter.next == i.toString)
+      assert(stringDataStore(i) == i.toString)
+    }
+    assert(!iter.hasNext)
+
+    for (i <- 0 until testSize) {
+      assert(stringDataStore.remove(i.toString))
+      assert(!stringDataStore.remove(i.toString))
+    }
+
+    assert(!stringDataStore.iterator.hasNext)
+
+
+    for (j <- 0 to 1; i <- 0 until testSize/2) {
+      stringDataStore.insert(i.toString)
+      assert(stringDataStore.length == j*(testSize/2)+ i + 1)
+    }
+
+    iter = stringDataStore.iterator
+    for (j <- 0 to 1; i <- 0 until testSize/2) {
+      assert(iter.hasNext)
+      assert(iter.next == i.toString)
+      assert(stringDataStore(j*(testSize/2)+i) == i.toString)
+    }
+    assert(!iter.hasNext)
+
+    for (i <- 0 until testSize/2) {
+      assert(stringDataStore.remove(i.toString))
+      assert(!stringDataStore.remove(i.toString))
+    }
+
+    assert(!stringDataStore.iterator.hasNext)
+
+    for (j <- 0 to 1; i <- 0 until testSize/2) {
+      stringDataStore.insert(i.toString)
+      assert(stringDataStore.length == j*(testSize/2)+ i + 1)
+    }
+
+    for (i <- testSize/2 until testSize) {
+      stringDataStore.insert(i.toString)
+      assert(stringDataStore.length == testSize)
+    }
+
+    iter = stringDataStore.iterator
+    for (i <- 0 until testSize) {
+      assert(iter.hasNext)
+      assert(iter.next == i.toString)
+      assert(stringDataStore(i) == i.toString)
+    }
+    assert(!iter.hasNext)
   }
 }
