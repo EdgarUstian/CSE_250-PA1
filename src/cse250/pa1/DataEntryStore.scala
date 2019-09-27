@@ -29,7 +29,17 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
 
   /** Inserts element to tail of list. */
   def insert(elem: A): Unit = {
-
+    //Not-Full List
+    if(numStored <= capacity){
+      var index: Int = 0
+      while(dataArray(index).value != null && index < capacity){
+        index += 1
+      }
+      
+    }
+    //Full List
+    else{
+    }
   }
 
   /** Removes all copies of the given element. */
