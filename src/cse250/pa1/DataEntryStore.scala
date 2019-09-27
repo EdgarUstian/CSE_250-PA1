@@ -38,7 +38,7 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
       dataArray.head.value = elem
     }
     //Not-Full List
-    if(0 < numStored && numStored < capacity){
+    else if(0 < numStored && numStored < capacity){
       var indX: Int = 0
       while(indX < capacity){
         if(dataArray(indX).value == null){
@@ -67,32 +67,53 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
       //Old head becomes New tail
       tailIndex = headIndex
       //Next item is the head
+      val tempIndX: Int = headIndex
       headIndex = dataArray(headIndex).next
       //Sets previous as head
-      dataArray(headIndex).prev = -1
+      dataArray(tempIndX).prev = -1
     }
-    println("====================")
-    println("numStored : " + numStored)
-    println("Capacity : " + capacity)
-    println("   Head : " + headIndex)
-    println("   TAil : " + tailIndex)
-    if (numStored == capacity) {
-      println("fullllllll")
-    }
-    println("====================")
   }
 
   /** Removes all copies of the given element. */
-  def remove(elem: A): Boolean = ???
+  def remove(elem: A): Boolean = {
+    var exists: Boolean = false
+    for(nodes <- dataArray){
+      if(nodes.value == elem){
+        exists = true
+        if(nodes.prev != -1){
+          dataArray(nodes.prev).next = nodes.next
+        }
+        if(nodes.next != -1){
+          dataArray(nodes.next).prev = nodes.prev
+        }
+        nodes.value = null
+        nodes.prev = -1
+        nodes.next = -1
+      }
+    }
+    exists
+  }
 
   /** Returns the count of nodes containing given entry. */
-  def countEntry(entry: A): Int = ???
+  def countEntry(entry: A): Int = {
+    var entries: Int = 0
+    for(node <- dataArray){
+      if(node.value == entry){
+        entries += 1
+      }
+    }
+    entries
+  }
 
   /** Gets the element at the specified index. */
-  override def apply(idx: Int): A = ???
+  override def apply(indX: Int): A = {
+    dataArray(indX).value
+  }
 
   /** Replaces element at given index with a new value. */
-  override def update(idx: Int, elem: A): Unit = ???
+  override def update(indX: Int, elem: A): Unit = {
+    dataArray(indX).value = elem
+  }
 
   /** Returns an Iterator that can be used only once. */
   def iterator: Iterator[A] = new Iterator[A] {
