@@ -102,7 +102,7 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
     var exists: Boolean = false
     //Iterate until relative tail
     for(node <- dataArray){
-      print(node.prev + ", " + node.next)
+//      print(node.prev + ", " + node.next)
       //If exists
       if(node.value == elem){
         exists = true
