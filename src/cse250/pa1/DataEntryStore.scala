@@ -39,13 +39,11 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
     }
     //Not-Full List
     else if(0 < numStored && numStored < capacity){
-      var editNode: EmbeddedListNode[A] = null
       var indX = 0
       //Find first empty node
       breakable(
-        for(node <- dataArray){
-          if(node.value == null){
-            editNode = node
+        for(nodes <- dataArray.indices){
+          if(dataArray(indX).value == null){
             break()
           }
           indX += 1
@@ -53,32 +51,34 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
       )
       numStored += 1
       //Set done to elem
-      editNode.value = elem
-      editNode.prev = tailIndex
+      dataArray(indX).value = elem
+      dataArray(indX).prev = tailIndex
       dataArray(tailIndex).next = indX
       tailIndex = indX
     }
     //Full List
     else if(numStored == capacity){
       //Replace the value
+      println("head.value : " + dataArray(headIndex).value + " --> " + elem)
       dataArray(headIndex).value = elem
       //Double-Link
-//      println("head.prev : " + dataArray(headIndex).prev + " --> " + tailIndex)
+      println("head.prev : " + dataArray(headIndex).prev + " --> " + tailIndex)
       dataArray(headIndex).prev = tailIndex
-//      println("tail.next : " + dataArray(tailIndex).next + " --> " + headIndex)
+      println("tail.next : " + dataArray(tailIndex).next + " --> " + headIndex)
       dataArray(tailIndex).next = headIndex
       //Next node in list becomes head
-//      println("next.prev : " + dataArray(dataArray(headIndex).next).prev + " --> " + "-1")
+      println("next.prev : " + dataArray(dataArray(headIndex).next).prev + " --> " + "-1")
       dataArray(dataArray(headIndex).next).prev = -1
       //Head becomes new Tail
-//      println("     tail : " + tailIndex + " --> " + headIndex)
+      println("     tail : " + tailIndex + " --> " + headIndex)
       tailIndex = headIndex
       //Next elem is the new head
-//      println("     head : " + headIndex + " --> " + dataArray(headIndex).next)
+      println("     head : " + headIndex + " --> " + dataArray(headIndex).next)
       headIndex = dataArray(headIndex).next
+      dataArray(tailIndex).next = -1
     }
-    /*
-    println("============================================")
+    println("===================INSERT===================")
+    println("Inserting : " + elem)
     println("numStored : " + numStored)
     println(" Capacity : " + capacity)
     println("     Head : " + headIndex)
@@ -94,7 +94,7 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
       println("value : " + node.value)
     }
     println("============================================")
-    */
+
   }
 
   /** Removes all copies of the given element. */
@@ -111,45 +111,83 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
         if(numStored > 0){
           //If at relative head
           if(node.prev == -1 && node.next != -1){
+            println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            println("Category: HEAD")
+            println(node.prev, node.next)
             //Update headIndex
             headIndex = node.next
             dataArray(node.next).prev = -1
             node.next = -1
           }
           //If at relative tail
-          if(node.prev != -1 && node.next == -1){
+          else if(node.prev != -1 && node.next == -1){
+            println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            println("Category: TAIL")
+            println(node.prev, node.next)
             //Update tailIndex
             tailIndex = node.prev
             dataArray(node.prev).next = -1
             node.prev = -1
           }
           //Only 1 node
-          if(node.prev == -1 && node.next == -1){
+          else if(node.prev == -1 && node.next == -1){
+            println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            println("Category: ONE")
+            println(node.prev, node.next)
             node.prev = -1
             node.next = -1
-            headIndex = -1
-            tailIndex = -1
+            headIndex = 0
+            tailIndex = 0
           }
-          if(node.prev != -1 && node.next != -1){
+          //Middle
+          else if(node.prev != -1 && node.next != -1){
+            println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+            println("Category: MIDDLE")
+            println(node.prev, node.next)
             dataArray(node.prev).next = node.next
             dataArray(node.next).prev = node.prev
             node.prev = -1
             node.next = -1
           }
         }
+        else{
+          println("Category: ZERO")
+          headIndex = -1
+          tailIndex = -1
+          node.prev = -1
+          node.next = -1
+        }
       }
     }
+    println("====================REMOVE====================")
+    println("Removing : " + elem)
+    println("numStored : " + numStored)
+    println(" Capacity : " + capacity)
+    println("     Head : " + headIndex)
+    println("     Tail : " + tailIndex)
+    if (numStored == capacity) {
+      println("FULL")
+    }
+    for(indX <- dataArray.indices){
+      val node = dataArray(indX)
+      print("indX : " + indX + ", ")
+      print("prev : " + node.prev + ", ")
+      print("next : " + node.next + ", ")
+      println("value : " + node.value)
+    }
+    println("============================================")
     exists
   }
 
   /** Returns the count of nodes containing given entry. */
   def countEntry(entry: A): Int = {
     var entries: Int = 0
-    for(node <- dataArray){
-      if(node.value == entry){
+    for (node <- dataArray) {
+      if (node.value == entry) {
         entries += 1
       }
     }
+    println("Entries: " + entries)
     entries
   }
 

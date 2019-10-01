@@ -59,6 +59,7 @@ object Main {
   }
 
   def main(args: Array[String]): Unit = {
+    /*
     val taxEntryStore = new DataEntryStore[TaxEntry](10)
     val filename = "data/2017-2018_Assessment_Roll-updated-small.csv"
 
@@ -116,6 +117,19 @@ object Main {
     println(taxEntryStore)
     println("-----")
 
-
+*/
+    val singleEntry = new DataEntryStore[String](4)
+    singleEntry.insert("Hello")
+    singleEntry.insert("Hi")
+    singleEntry.insert("Howdy")
+    singleEntry.insert("Wassaaap")
+    singleEntry.remove("Hi")
+    singleEntry.remove("Hello")
+    singleEntry.remove("Howdy")
+    singleEntry.insert("Yo")
+    singleEntry.insert("Hello")
+    singleEntry.insert("Howdy")
+    singleEntry.insert("Howdy")
+    singleEntry.countEntry("Howdy")
   }
 }
