@@ -192,8 +192,17 @@ class DataEntryStore[A >: Null <: AnyRef](private val capacity: Int = 100)
   }
 
   /** Gets the element at the specified index. */
-  override def apply(indX: Int): A = {
-    dataArray(indX).value
+  override def apply(idx: Int): A = {
+    var regList: List[A] = List()
+    var current = dataArray(headIndex)
+    while (current.next != -1) {
+      if (current.value != null) {
+        regList = regList :+ current.value
+      }
+      current = dataArray(current.next)
+    }
+    regList = regList :+ current.value
+    regList(idx)
   }
 
   /** Replaces element at given index with a new value. */
